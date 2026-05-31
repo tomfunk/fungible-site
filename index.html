@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fungible — Terminal personal finance</title>
+  <meta name="description" content="A terminal UI for personal finance. Sync bank accounts, categorize spending, track net worth, and ask Claude about your money, all on your machine." />
+  <meta property="og:title" content="Fungible — Terminal personal finance" />
+  <meta property="og:description" content="Sync bank accounts, categorize spending, and track net worth from your terminal. Free and open source." />
+  <meta property="og:type" content="website" />
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #282a36;
+      --surface: #21222c;
+      --border:  #44475a;
+      --text:    #f8f8f2;
+      --muted:   #6272a4;
+      --purple:  #bd93f9;
+      --green:   #50fa7b;
+      --cyan:    #8be9fd;
+      --yellow:  #f1fa8c;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      --font-mono: "SF Mono", "Fira Code", "Fira Mono", Menlo, Monaco, Consolas, monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+    .cursor {
+      display: inline-block;
+      width: 0.55em;
+      height: 0.85em;
+      background: var(--text);
+      vertical-align: baseline;
+      position: relative;
+      bottom: -0.05em;
+      animation: blink 1.1s step-end infinite;
+      margin-left: 3px;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: rgba(40,42,54,0.93);
+      backdrop-filter: blur(8px);
+      z-index: 10;
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+    }
+    .nav-logo { color: var(--text); font-weight: 600; }
+    .nav-logo .prompt { color: var(--muted); }
+    .nav-logo .name   { color: var(--purple); }
+    .nav-links { display: flex; align-items: center; gap: 1.5rem; list-style: none; }
+    .nav-links a { color: var(--muted); transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: opacity 0.15s;
+      cursor: pointer;
+      border: none;
+      white-space: nowrap;
+    }
+    .btn:hover { opacity: 0.8; text-decoration: none; }
+    .btn-primary { background: var(--purple); color: var(--surface); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--muted); }
+
+    /* HERO */
+    .hero {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 5rem 2rem 4rem;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 2rem;
+    }
+    .hero-eyebrow .hl { color: var(--green); }
+    .hero h1 {
+      font-family: var(--font-mono);
+      font-size: clamp(1.8rem, 4.5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.25rem;
+    }
+    .hero h1 .hl-purple { color: var(--purple); }
+    .hero p {
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 560px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.75;
+    }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    /* INSTALL */
+    .install-block {
+      max-width: 560px;
+      margin: 3.5rem auto 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      text-align: left;
+    }
+    .win-chrome {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .win-chrome .win-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-left: auto;
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red    { background: #ff5555; }
+    .dot-yellow { background: #f1fa8c; }
+    .dot-green  { background: #50fa7b; }
+    .install-lines {
+      padding: 1.25rem 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 2.1;
+    }
+    .install-line { display: flex; align-items: baseline; gap: 0.6rem; }
+    .prompt  { color: var(--muted); user-select: none; }
+    .cmd     { color: var(--text); }
+    .comment { color: var(--muted); }
+    .kw      { color: var(--purple); }
+
+    /* DEMO */
+    .demo-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1rem 2rem 5rem;
+    }
+    .demo-wrap {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .demo-chrome {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .demo-chrome .win-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-left: auto;
+    }
+    /* override asciinema player container to fit our chrome */
+    #demo-player {
+      display: block;
+      line-height: 0;
+    }
+    #demo-player .ap-player {
+      border-radius: 0;
+      border: none;
+    }
+
+    /* SECTIONS */
+    .section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+    .section-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); margin-bottom: 0.9rem; }
+    .section-label .sl-hash { color: var(--purple); }
+    .section h2 {
+      font-family: var(--font-mono);
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.9rem;
+    }
+    .section > p { color: var(--muted); font-size: 1rem; max-width: 560px; margin-bottom: 3rem; line-height: 1.75; }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--border);
+    }
+    .feature-card { background: var(--surface); padding: 1.5rem; }
+    .feature-card h3 {
+      font-family: var(--font-mono);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--cyan);
+      margin-bottom: 0.5rem;
+    }
+    .feature-card h3::before { content: '> '; color: var(--purple); }
+    .feature-card p { font-size: 0.875rem; color: var(--muted); line-height: 1.65; }
+
+    hr.divider { border: none; border-top: 1px solid var(--border); max-width: 900px; margin: 0 auto; }
+
+    /* MCP */
+    .mcp-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    @media (max-width: 640px) { .mcp-section { grid-template-columns: 1fr; gap: 2rem; } }
+    .mcp-terminal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+    .mcp-messages { padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; }
+    .msg { display: flex; gap: 0.6rem; line-height: 1.55; }
+    .msg-label { font-weight: 700; flex-shrink: 0; font-size: 0.75rem; padding-top: 0.05rem; }
+    .msg-user   .msg-label { color: var(--muted);  }
+    .msg-claude .msg-label { color: var(--purple); }
+    .msg-user   .msg-body  { color: var(--muted);  }
+    .msg-claude .msg-body  { color: var(--text);   }
+
+    /* CONTRIBUTE */
+    .contribute-section { max-width: 900px; margin: 0 auto; padding: 4rem 2rem; }
+    .contribute-inner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      align-items: center;
+    }
+    @media (max-width: 640px) { .contribute-inner { grid-template-columns: 1fr; } }
+    .contribute-inner h2 { font-family: var(--font-mono); font-size: 1.3rem; font-weight: 700; margin-bottom: 0.6rem; }
+    .contribute-inner p  { color: var(--muted); font-size: 0.95rem; line-height: 1.75; }
+
+    /* WAITLIST */
+    .waitlist-section { max-width: 900px; margin: 0 auto; padding: 0 2rem 5rem; }
+    .waitlist-inner { border: 1px solid var(--border); border-radius: 8px; padding: 2.5rem; text-align: center; }
+    .waitlist-inner h2 { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .waitlist-inner p  { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; font-family: var(--font-mono); }
+    .waitlist-form { display: flex; gap: 0.5rem; max-width: 400px; margin: 0 auto; }
+    .waitlist-form input {
+      flex: 1;
+      padding: 0.55rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .waitlist-form input::placeholder { color: var(--muted); }
+    .waitlist-form input:focus { border-color: var(--purple); }
+    @media (max-width: 480px) { .waitlist-form { flex-direction: column; } }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--text); text-decoration: none; }
+    .footer-links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-bottom: 1rem; }
+
+    @media (max-width: 600px) {
+      nav { padding: 0.9rem 1rem; }
+      .nav-links { gap: 1rem; }
+      .hero, .section, .mcp-section, .contribute-section, .waitlist-section, .demo-section { padding-left: 1rem; padding-right: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo"><span class="prompt">$</span> <span class="name">fungible</span></div>
+    <ul class="nav-links">
+      <li><a href="https://github.com/tomfunk/fungible">github</a></li>
+      <li><a href="https://github.com/tomfunk/fungible#features">features</a></li>
+      <li><a href="https://github.com/tomfunk/fungible/blob/main/CONTRIBUTING.md">contribute</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-eyebrow">open source · MIT · local-first</div>
+    <h1>Personal finance<br />in your <span class="hl-purple">terminal</span><span class="cursor"></span></h1>
+    <p>Sync bank accounts with Plaid, import CSVs, categorize spending, track net worth, and ask Claude about your money — all on your machine.</p>
+    <div class="hero-actions">
+      <a href="https://github.com/tomfunk/fungible" class="btn btn-primary">view on github</a>
+    </div>
+
+    <div class="install-block">
+      <div class="win-chrome">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="win-title">~/</span>
+      </div>
+      <div class="install-lines">
+        <div class="install-line">
+          <span class="prompt">$</span>
+          <span class="cmd">brew tap <span class="kw">tomfunk/fungible</span></span>
+        </div>
+        <div class="install-line">
+          <span class="prompt">$</span>
+          <span class="cmd">brew install <span class="kw">fungible</span></span>
+        </div>
+        <div class="install-line">
+          <span class="prompt">$</span>
+          <span class="cmd">fungible <span class="kw">--demo</span></span>
+          <span class="comment"># try it with fake data first</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEMO -->
+  <div class="demo-section">
+    <div class="demo-wrap">
+      <div class="demo-chrome">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="win-title">fungible --demo</span>
+      </div>
+      <div id="demo-player"></div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- FEATURES -->
+  <section class="section">
+    <div class="section-label"><span class="sl-hash">//</span> what it does</div>
+    <h2>Everything you need. Where it should be.</h2>
+    <p>The TUI stores everything in <code style="font-family:var(--font-mono);color:var(--yellow);font-size:0.9em">~/.fungible</code>. No account required.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <h3>Bank sync via Plaid</h3>
+        <p>Connect checking, savings, credit, and investment accounts via <a href="https://plaid.com" target="_blank" rel="noopener" style="color:var(--cyan)">Plaid</a>. Transactions pull automatically with a 15-minute debounce and a force-sync option.</p>
+      </div>
+      <div class="feature-card">
+        <h3>CSV import</h3>
+        <p>Import statement exports from any bank. Flexible column mapping, duplicate detection against <a href="https://plaid.com" target="_blank" rel="noopener" style="color:var(--cyan)">Plaid</a> imports, and soft-delete for cleanup.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Category rules</h3>
+        <p>Substring and <span style="color:var(--cyan)">regex</span> rules with optional amount filters auto-categorize transactions on sync. Name rules let you rename how payees display.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Spending trends</h3>
+        <p>Bar charts for expenses, income, or any category, aggregated by week, month, quarter, or year. <span style="color:var(--purple)">Delta mode</span> shows deviation from your rolling averages.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Net worth tracking</h3>
+        <p>Balance history across all accounts, plus manual assets like a house or car. Scroll by week, month, quarter, or year. View by account or by type.</p>
+      </div>
+      <div class="feature-card">
+        <h3>FIRE &amp; financial health</h3>
+        <p>Cash and liquid runway, <span style="color:var(--cyan)">FIRE number</span> with progress bar, <span style="color:var(--cyan)">Coast FIRE</span>, and years to retirement. Adjustable assumptions with live recalculation.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Tags</h3>
+        <p>Label transactions across accounts — trips, projects, events. View income, expenses, and category breakdowns per tag.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Manual assets</h3>
+        <p>Track a house, car, or any other asset by name and value. Shows up in net worth alongside your bank accounts and investments.</p>
+      </div>
+      <div class="feature-card">
+        <h3>Daily backups</h3>
+        <p>Your database is backed up to <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--yellow)">~/.fungible/backups/</code> on startup once per day. Keeps the last 7 by default.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- MCP -->
+  <section class="mcp-section">
+    <div>
+      <div class="section-label"><span class="sl-hash">//</span> mcp server</div>
+      <h2 style="font-family:var(--font-mono);font-size:clamp(1.3rem,3vw,1.8rem);font-weight:700;letter-spacing:-0.02em;margin-bottom:1rem">Ask Claude about your finances.</h2>
+      <p style="color:var(--muted);font-size:0.95rem;line-height:1.75;margin-bottom:1.25rem">
+        Fungible ships with a built-in <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">MCP server</a>. Point Claude Desktop at it and you can ask natural-language questions about your spending, run summaries, add rules, and more — directly from Claude.
+      </p>
+      <p style="color:var(--muted);font-size:0.85rem;line-height:1.75;font-family:var(--font-mono)">
+        <span style="color:var(--purple)">stdio</span> mode always works, even when the TUI is closed.<br/>
+        <span style="color:var(--cyan)">http</span> mode updates the TUI instantly while it's running.
+      </p>
+    </div>
+    <div class="mcp-terminal">
+      <div class="win-chrome">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="win-title">claude</span>
+      </div>
+      <div class="mcp-messages">
+        <div class="msg msg-user">
+          <span class="msg-label">you&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <span class="msg-body">Any Venmo payment over $100 is probably babysitting — add a rule for that.</span>
+        </div>
+        <div class="msg msg-claude">
+          <span class="msg-label">claude&nbsp;</span>
+          <span class="msg-body">Done. Rule added: <span style="color:var(--yellow)">"Venmo"</span> → <span style="color:var(--green)">Babysitting</span>, min <span style="color:var(--cyan)">$100.00</span>. Matched 3 existing transactions — all recategorized.</span>
+        </div>
+        <div class="msg msg-user">
+          <span class="msg-label">you&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <span class="msg-body">How much have I spent on babysitting this year?</span>
+        </div>
+        <div class="msg msg-claude">
+          <span class="msg-label">claude&nbsp;</span>
+          <span class="msg-body">$680 across 5 payments — averaging $136 a session.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider" />
+
+  <!-- CONTRIBUTE -->
+  <section class="contribute-section">
+    <div class="contribute-inner">
+      <div>
+        <h2>Help build it.</h2>
+        <p>Fungible is open source and actively developed. If you're a TypeScript developer who wants to work on something genuinely useful, pull requests are very welcome. Check out the issues list for ideas, or bring your own.</p>
+      </div>
+      <a href="https://github.com/tomfunk/fungible" class="btn btn-outline">view on github →</a>
+    </div>
+  </section>
+
+  <!-- WAITLIST -->
+  <section class="waitlist-section">
+    <div class="waitlist-inner">
+      <h2>// web app coming soon.</h2>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-links">
+      <a href="https://github.com/tomfunk/fungible">github</a>
+      <a href="https://github.com/tomfunk/fungible/blob/main/LICENSE">MIT license</a>
+      <a href="https://github.com/tomfunk/fungible/blob/main/CONTRIBUTING.md">contributing</a>
+      <a href="https://github.com/tomfunk/fungible/issues">issues</a>
+    </div>
+    <span>built by <a href="https://github.com/tomfunk">Thomas</a></span>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/asciinema-player@3/dist/bundle/asciinema-player.min.js"></script>
+  <script>
+    AsciinemaPlayer.create('demo.cast', document.getElementById('demo-player'), {
+      cols: 99,
+      rows: 37,
+      autoPlay: true,
+      loop: true,
+      controls: false,
+      theme: 'dracula',
+      fit: 'width',
+      terminalFontFamily: '"SF Mono", "Fira Code", "Fira Mono", Menlo, Monaco, Consolas, monospace',
+    });
+  </script>
+</body>
+</html>
