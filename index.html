@@ -336,6 +336,113 @@
       .nav-links { gap: 1rem; }
       .hero, .section, .mcp-section, .contribute-section, .waitlist-section, .demo-section { padding-left: 1rem; padding-right: 1rem; }
     }
+
+    /* MODE TOGGLE */
+    .mode-toggle {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      gap: 2px;
+    }
+    .mode-toggle button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: inherit;
+      letter-spacing: 0.04em;
+      transition: background 0.15s, color 0.15s;
+    }
+    .mode-toggle button:hover { color: var(--text); }
+    .mode-toggle button.active {
+      background: var(--purple);
+      color: var(--surface);
+    }
+
+    /* mode-scoped visibility */
+    body[data-mode="tui"] .gui-only { display: none !important; }
+    body[data-mode="gui"] .tui-only { display: none !important; }
+
+    /* GUI hero word swap — keep cursor adjacent to whichever word is visible */
+    .hero h1 .hl-gui { color: var(--cyan); }
+
+    /* GUI install block — download buttons in place of brew commands */
+    .download-grid {
+      padding: 1.25rem 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.6rem;
+    }
+    @media (max-width: 480px) { .download-grid { grid-template-columns: 1fr; } }
+    .dl-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.15rem;
+      padding: 0.65rem 0.9rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      color: var(--text);
+      transition: border-color 0.15s;
+    }
+    .dl-btn:hover { border-color: var(--purple); text-decoration: none; }
+    .dl-btn .dl-os   { font-size: 0.78rem; color: var(--cyan); }
+    .dl-btn .dl-file { font-size: 0.68rem; color: var(--muted); }
+
+    /* GUI demo carousel */
+    .gui-demo {
+      background: #1a1c25;
+    }
+    .gui-screen-wrap {
+      position: relative;
+      aspect-ratio: 2784 / 1884; /* matches captured PNG aspect */
+      background: #14161d;
+      overflow: hidden;
+    }
+    .gui-screen-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      opacity: 0;
+      position: absolute;
+      inset: 0;
+      transition: opacity 0.35s ease;
+    }
+    .gui-screen-wrap img.active { opacity: 1; }
+    .gui-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.7rem 1rem;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+    .gui-label { color: var(--text); }
+    .gui-label .gui-label-kw { color: var(--purple); }
+    .gui-dots { display: flex; gap: 0.4rem; }
+    .gui-dots button {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      background: var(--border);
+      transition: background 0.15s, transform 0.15s;
+    }
+    .gui-dots button:hover { background: var(--muted); }
+    .gui-dots button.active { background: var(--purple); transform: scale(1.25); }
   </style>
 </head>
 <body>
@@ -346,20 +453,25 @@
     <ul class="nav-links">
       <li><a href="https://github.com/tomfunk/fungible">github</a></li>
       <li><a href="https://github.com/tomfunk/fungible#features">features</a></li>
-      <li><a href="https://github.com/tomfunk/fungible/blob/main/CONTRIBUTING.md">contribute</a></li>
+      <li>
+        <div class="mode-toggle" role="tablist" aria-label="Interface mode">
+          <button type="button" data-mode-btn="tui" role="tab" aria-selected="true">TUI</button>
+          <button type="button" data-mode-btn="gui" role="tab" aria-selected="false">GUI</button>
+        </div>
+      </li>
     </ul>
   </nav>
 
   <!-- HERO -->
   <section class="hero">
     <div class="hero-eyebrow">open source · MIT · local-first</div>
-    <h1>Personal finance<br />in your <span class="hl-purple">terminal</span><span class="cursor"></span></h1>
+    <h1>Personal finance<br />in your <span class="hl-purple tui-only">terminal</span><span class="hl-gui gui-only">desktop</span><span class="cursor"></span></h1>
     <p>Sync bank accounts with Plaid, import CSVs, categorize spending, track net worth, and ask Claude about your money — all on your machine.</p>
     <div class="hero-actions">
       <a href="https://github.com/tomfunk/fungible" class="btn btn-primary">view on github</a>
     </div>
 
-    <div class="install-block">
+    <div class="install-block tui-only">
       <div class="win-chrome">
         <div class="dot dot-red"></div>
         <div class="dot dot-yellow"></div>
@@ -382,10 +494,33 @@
         </div>
       </div>
     </div>
+
+    <div class="install-block gui-only">
+      <div class="win-chrome">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="win-title">download</span>
+      </div>
+      <div class="download-grid">
+        <a class="dl-btn" href="https://github.com/tomfunk/fungible/releases/latest">
+          <span class="dl-os">macOS</span>
+          <span class="dl-file">.dmg · Apple silicon &amp; Intel</span>
+        </a>
+        <a class="dl-btn" href="https://github.com/tomfunk/fungible/releases/latest">
+          <span class="dl-os">Windows</span>
+          <span class="dl-file">.exe · installer</span>
+        </a>
+        <a class="dl-btn" href="https://github.com/tomfunk/fungible/releases/latest">
+          <span class="dl-os">Linux</span>
+          <span class="dl-file">.AppImage · .deb</span>
+        </a>
+      </div>
+    </div>
   </section>
 
-  <!-- DEMO -->
-  <div class="demo-section">
+  <!-- DEMO (TUI) -->
+  <div class="demo-section tui-only">
     <div class="demo-wrap">
       <div class="demo-chrome">
         <div class="dot dot-red"></div>
@@ -394,6 +529,41 @@
         <span class="win-title">fungible --demo</span>
       </div>
       <div id="demo-player"></div>
+    </div>
+  </div>
+
+  <!-- DEMO (GUI) -->
+  <div class="demo-section gui-only">
+    <div class="demo-wrap gui-demo">
+      <div class="demo-chrome">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="win-title">fungible</span>
+      </div>
+      <div class="gui-screen-wrap" id="gui-screens">
+        <img data-i="0" class="active" src="img/gui/dashboard.png"    alt="Dashboard" />
+        <img data-i="1"                src="img/gui/transactions.png" alt="Transactions" />
+        <img data-i="2"                src="img/gui/trends.png"       alt="Trends" />
+        <img data-i="3"                src="img/gui/networth.png"     alt="Net worth" />
+        <img data-i="4"                src="img/gui/tags.png"         alt="Tags" />
+        <img data-i="5"                src="img/gui/health.png"       alt="Financial health" />
+        <img data-i="6"                src="img/gui/rules.png"        alt="Rules" />
+        <img data-i="7"                src="img/gui/accounts.png"     alt="Accounts" />
+      </div>
+      <div class="gui-meta">
+        <span class="gui-label"><span class="gui-label-kw">//</span> <span id="gui-label-text">Dashboard</span></span>
+        <div class="gui-dots" id="gui-dots">
+          <button type="button" data-i="0" class="active" aria-label="Dashboard"></button>
+          <button type="button" data-i="1" aria-label="Transactions"></button>
+          <button type="button" data-i="2" aria-label="Trends"></button>
+          <button type="button" data-i="3" aria-label="Net worth"></button>
+          <button type="button" data-i="4" aria-label="Tags"></button>
+          <button type="button" data-i="5" aria-label="Health"></button>
+          <button type="button" data-i="6" aria-label="Rules"></button>
+          <button type="button" data-i="7" aria-label="Accounts"></button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -530,6 +700,61 @@
       fit: 'width',
       terminalFontFamily: '"SF Mono", "Fira Code", "Fira Mono", Menlo, Monaco, Consolas, monospace',
     });
+  </script>
+
+  <script>
+    // ── TUI/GUI mode toggle ─────────────────────────────────────────────
+    (function () {
+      const KEY = 'fungible-site-mode';
+      const valid = (m) => m === 'tui' || m === 'gui';
+      const initial = valid(localStorage.getItem(KEY)) ? localStorage.getItem(KEY) : 'tui';
+      const setMode = (m) => {
+        document.body.dataset.mode = m;
+        localStorage.setItem(KEY, m);
+        document.querySelectorAll('[data-mode-btn]').forEach((b) => {
+          const on = b.dataset.modeBtn === m;
+          b.classList.toggle('active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+      };
+      setMode(initial);
+      document.querySelectorAll('[data-mode-btn]').forEach((b) => {
+        b.addEventListener('click', () => setMode(b.dataset.modeBtn));
+      });
+    })();
+
+    // ── GUI screenshot carousel ────────────────────────────────────────
+    (function () {
+      const labels = ['Dashboard', 'Transactions', 'Trends', 'Net worth', 'Tags', 'Financial health', 'Rules', 'Accounts'];
+      const imgs = document.querySelectorAll('#gui-screens img');
+      const dots = document.querySelectorAll('#gui-dots button');
+      const labelEl = document.getElementById('gui-label-text');
+      let idx = 0;
+      let timer = null;
+
+      const show = (i) => {
+        idx = (i + imgs.length) % imgs.length;
+        imgs.forEach((el) => el.classList.toggle('active', Number(el.dataset.i) === idx));
+        dots.forEach((el) => el.classList.toggle('active', Number(el.dataset.i) === idx));
+        labelEl.textContent = labels[idx];
+      };
+
+      const start = () => {
+        stop();
+        timer = setInterval(() => show(idx + 1), 4500);
+      };
+      const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
+
+      dots.forEach((d) => d.addEventListener('click', () => { show(Number(d.dataset.i)); start(); }));
+
+      // Only run the timer while the GUI section is actually visible.
+      const tick = () => {
+        if (document.body.dataset.mode === 'gui') start();
+        else stop();
+      };
+      tick();
+      new MutationObserver(tick).observe(document.body, { attributes: true, attributeFilter: ['data-mode'] });
+    })();
   </script>
 </body>
 </html>
