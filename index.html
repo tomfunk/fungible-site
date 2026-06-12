@@ -370,41 +370,117 @@
     body[data-mode="tui"] .gui-only { display: none !important; }
     body[data-mode="gui"] .tui-only { display: none !important; }
 
-    /* GUI hero word swap — keep cursor adjacent to whichever word is visible */
+    /* GUI hero word + cursor swap */
     .hero h1 .hl-gui { color: var(--cyan); }
+    body[data-mode="gui"] .hero h1 .cursor { display: none; }
 
-    /* GUI install block — download buttons in place of brew commands */
-    .download-grid {
-      padding: 1.25rem 1.5rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 0.6rem;
-    }
-    @media (max-width: 480px) { .download-grid { grid-template-columns: 1fr; } }
-    .dl-btn {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.15rem;
-      padding: 0.65rem 0.9rem;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-family: var(--font-mono);
+    /* In GUI mode, the download CTA is the primary; demote the github button */
+    body[data-mode="gui"] .hero-actions .btn-primary {
+      background: transparent;
       color: var(--text);
-      transition: border-color 0.15s;
+      border: 1px solid var(--border);
     }
-    .dl-btn:hover { border-color: var(--purple); text-decoration: none; }
-    .dl-btn .dl-os   { font-size: 0.78rem; color: var(--cyan); }
-    .dl-btn .dl-file { font-size: 0.68rem; color: var(--muted); }
+    body[data-mode="gui"] .hero-actions .btn-primary:hover { border-color: var(--muted); opacity: 1; }
 
-    /* GUI demo carousel */
+    /* GUI install block — primary CTA + secondary platform links */
+    body[data-mode="gui"] .install-block.gui-only {
+      background: transparent;
+      border: 0;
+      max-width: 480px;
+      overflow: visible;
+    }
+    .dl-area { display: flex; flex-direction: column; align-items: center; gap: 0.85rem; }
+    .dl-primary {
+      display: none;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.95rem 1.4rem;
+      background: var(--purple);
+      color: var(--surface);
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      box-shadow:
+        0 8px 24px -10px rgba(189, 147, 249, 0.55),
+        0 2px 6px -2px rgba(0, 0, 0, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .dl-primary:hover {
+      text-decoration: none;
+      transform: translateY(-1px);
+      box-shadow:
+        0 12px 30px -10px rgba(189, 147, 249, 0.7),
+        0 3px 8px -2px rgba(0, 0, 0, 0.5);
+    }
+    .dl-primary svg { flex-shrink: 0; }
+    .dl-primary .dl-text { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
+    .dl-primary .dl-title { font-size: 0.95rem; }
+    .dl-primary .dl-sub { font-size: 0.7rem; opacity: 0.75; font-weight: 500; }
+    body[data-os="mac"]   .dl-primary[data-for="mac"]   { display: inline-flex; }
+    body[data-os="win"]   .dl-primary[data-for="win"]   { display: inline-flex; }
+    body[data-os="linux"] .dl-primary[data-for="linux"] { display: inline-flex; }
+
+    .dl-alts {
+      display: flex;
+      gap: 1.1rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      align-items: center;
+    }
+    .dl-alts span.dl-or { color: var(--muted); opacity: 0.7; }
+    .dl-alts a {
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: color 0.15s;
+    }
+    .dl-alts a:hover { color: var(--text); text-decoration: none; }
+    .dl-alts a svg { opacity: 0.7; }
+    body[data-os="mac"]   .dl-alts a[data-for="mac"]   { display: none; }
+    body[data-os="win"]   .dl-alts a[data-for="win"]   { display: none; }
+    body[data-os="linux"] .dl-alts a[data-for="linux"] { display: none; }
+    @media (max-width: 480px) {
+      .dl-primary { width: 100%; justify-content: center; }
+      .dl-alts { flex-wrap: wrap; justify-content: center; }
+    }
+
+    /* GUI demo gallery — frame, glow, slide transitions, thumbnail strip */
+    .demo-section.gui-only { max-width: 1040px; padding-top: 1.5rem; }
     .gui-demo {
-      background: #1a1c25;
+      border: 0;
+      border-radius: 12px;
+      overflow: visible;
+      position: relative;
+    }
+    .gui-frame {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--surface);
+      box-shadow:
+        0 0 0 1px var(--border),
+        0 30px 80px -30px rgba(189, 147, 249, 0.45),
+        0 20px 60px -25px rgba(139, 233, 253, 0.3),
+        0 12px 30px -10px rgba(0, 0, 0, 0.55);
+    }
+    .gui-frame::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 11px;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(189,147,249,0.55), rgba(139,233,253,0.35) 50%, rgba(80,250,123,0.25));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+              mask-composite: exclude;
+      pointer-events: none;
+      opacity: 0.6;
     }
     .gui-screen-wrap {
       position: relative;
-      aspect-ratio: 2784 / 1884; /* matches captured PNG aspect */
+      aspect-ratio: 2784 / 1884;
       background: #14161d;
       overflow: hidden;
     }
@@ -413,39 +489,98 @@
       height: 100%;
       object-fit: contain;
       display: block;
-      opacity: 0;
       position: absolute;
       inset: 0;
-      transition: opacity 0.35s ease;
+      opacity: 0;
+      transform: translateX(20px) scale(0.985);
+      transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+      will-change: opacity, transform;
     }
-    .gui-screen-wrap img.active { opacity: 1; }
-    .gui-meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.7rem 1rem;
-      border-top: 1px solid var(--border);
+    .gui-screen-wrap img.active {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      z-index: 2;
+    }
+    .gui-screen-wrap img.prev {
+      opacity: 0;
+      transform: translateX(-30px) scale(0.985);
+      z-index: 1;
+    }
+    .gui-counter {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.85rem;
+      z-index: 3;
+      padding: 0.25rem 0.6rem;
+      background: rgba(20, 22, 29, 0.72);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 999px;
       font-family: var(--font-mono);
-      font-size: 0.75rem;
+      font-size: 0.65rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
     }
-    .gui-label { color: var(--text); }
-    .gui-label .gui-label-kw { color: var(--purple); }
-    .gui-dots { display: flex; gap: 0.4rem; }
-    .gui-dots button {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      border: 0;
-      padding: 0;
+    .gui-counter .gui-counter-cur { color: var(--text); }
+
+    .gui-thumbs {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding: 0.25rem 0.25rem 0.5rem;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .gui-thumbs::-webkit-scrollbar { height: 6px; }
+    .gui-thumbs::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .gui-thumbs::-webkit-scrollbar-track { background: transparent; }
+    .gui-thumb {
+      flex: 0 0 auto;
+      width: 120px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 4px 0;
       cursor: pointer;
-      background: var(--border);
-      transition: background 0.15s, transform 0.15s;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.03em;
+      transition: border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, background 0.15s ease;
     }
-    .gui-dots button:hover { background: var(--muted); }
-    .gui-dots button.active { background: var(--purple); transform: scale(1.25); }
+    .gui-thumb:hover {
+      color: var(--text);
+      border-color: var(--muted);
+      transform: translateY(-2px);
+    }
+    .gui-thumb.active {
+      border-color: var(--purple);
+      color: var(--text);
+      background: rgba(189, 147, 249, 0.08);
+    }
+    .gui-thumb img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      object-position: top left;
+      border-radius: 3px;
+      display: block;
+      background: #14161d;
+    }
+    .gui-thumb span {
+      padding: 0.3rem 0.15rem 0.4rem;
+      text-align: left;
+    }
+    @media (max-width: 600px) {
+      .gui-thumb { width: 96px; font-size: 0.6rem; }
+    }
   </style>
 </head>
-<body>
+<body data-mode="gui">
 
   <!-- NAV -->
   <nav>
@@ -455,8 +590,8 @@
       <li><a href="https://github.com/tomfunk/fungible#features">features</a></li>
       <li>
         <div class="mode-toggle" role="tablist" aria-label="Interface mode">
-          <button type="button" data-mode-btn="tui" role="tab" aria-selected="true">TUI</button>
-          <button type="button" data-mode-btn="gui" role="tab" aria-selected="false">GUI</button>
+          <button type="button" data-mode-btn="gui" role="tab" aria-selected="true" class="active">GUI</button>
+          <button type="button" data-mode-btn="tui" role="tab" aria-selected="false">TUI</button>
         </div>
       </li>
     </ul>
@@ -465,7 +600,7 @@
   <!-- HERO -->
   <section class="hero">
     <div class="hero-eyebrow">open source · MIT · local-first</div>
-    <h1>Personal finance<br />in your <span class="hl-purple tui-only">terminal</span><span class="hl-gui gui-only">desktop</span><span class="cursor"></span></h1>
+    <h1>Personal finance<br /><span class="tui-only">in your <span class="hl-purple">terminal</span><span class="cursor"></span></span><span class="gui-only">on your <span class="hl-gui">desktop</span></span></h1>
     <p>Sync bank accounts with Plaid, import CSVs, categorize spending, track net worth, and ask Claude about your money — all on your machine.</p>
     <div class="hero-actions">
       <a href="https://github.com/tomfunk/fungible" class="btn btn-primary">view on github</a>
@@ -496,25 +631,40 @@
     </div>
 
     <div class="install-block gui-only">
-      <div class="win-chrome">
-        <div class="dot dot-red"></div>
-        <div class="dot dot-yellow"></div>
-        <div class="dot dot-green"></div>
-        <span class="win-title">download</span>
-      </div>
-      <div class="download-grid">
-        <a class="dl-btn" href="https://github.com/tomfunk/fungible/releases/latest">
-          <span class="dl-os">macOS</span>
-          <span class="dl-file">.dmg · Apple silicon &amp; Intel</span>
+      <div class="dl-area">
+        <a class="dl-primary" data-for="mac" href="https://github.com/tomfunk/fungible/releases/latest">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+            <path d="M17.05 20.28c-.98.95-2.05.8-3.08.36-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.36C2.79 15.24 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.53 4.08zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+          </svg>
+          <span class="dl-text">
+            <span class="dl-title">Download for macOS</span>
+            <span class="dl-sub">.dmg · Apple silicon &amp; Intel</span>
+          </span>
         </a>
-        <a class="dl-btn" href="https://github.com/tomfunk/fungible/releases/latest">
-          <span class="dl-os">Windows</span>
-          <span class="dl-file">.exe · installer</span>
+        <a class="dl-primary" data-for="win" href="https://github.com/tomfunk/fungible/releases/latest">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+            <path d="M3 5.5L10.8 4.4v7.1H3V5.5zM11.7 4.3L21 3v8.5h-9.3V4.3zM3 12.5h7.8v7.1L3 18.5v-6zM11.7 12.5H21V21l-9.3-1.3v-7.2z"/>
+          </svg>
+          <span class="dl-text">
+            <span class="dl-title">Download for Windows</span>
+            <span class="dl-sub">.exe installer · x64</span>
+          </span>
         </a>
-        <a class="dl-btn" href="https://github.com/tomfunk/fungible/releases/latest">
-          <span class="dl-os">Linux</span>
-          <span class="dl-file">.AppImage · .deb</span>
+        <a class="dl-primary" data-for="linux" href="https://github.com/tomfunk/fungible/releases/latest">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+            <path d="M12 2c-2.2 0-3.7 1.9-3.7 4.4 0 .6.1 1.1.2 1.6-.4.3-.7.7-1 1.1-1.5 2-2.5 4.5-2.5 6.7 0 1.3.2 2.4.6 3.3.3.7.8 1.3 1.5 1.6.3.1.6.2.9.2.7 0 1.3-.3 1.7-.8.1.1.3.1.4.1h3.8c.1 0 .3 0 .4-.1.4.5 1 .8 1.7.8.3 0 .6-.1.9-.2.7-.3 1.2-.9 1.5-1.6.4-.9.6-2 .6-3.3 0-2.2-1-4.7-2.5-6.7-.3-.4-.6-.8-1-1.1.1-.5.2-1 .2-1.6C15.7 3.9 14.2 2 12 2zm-1.4 4.1c.4 0 .7.4.7.9s-.3.9-.7.9-.7-.4-.7-.9.3-.9.7-.9zm2.8 0c.4 0 .7.4.7.9s-.3.9-.7.9-.7-.4-.7-.9.3-.9.7-.9z"/>
+          </svg>
+          <span class="dl-text">
+            <span class="dl-title">Download for Linux</span>
+            <span class="dl-sub">.AppImage · .deb</span>
+          </span>
         </a>
+        <div class="dl-alts">
+          <span class="dl-or">also for</span>
+          <a data-for="mac"   href="https://github.com/tomfunk/fungible/releases/latest">macOS</a>
+          <a data-for="win"   href="https://github.com/tomfunk/fungible/releases/latest">Windows</a>
+          <a data-for="linux" href="https://github.com/tomfunk/fungible/releases/latest">Linux</a>
+        </div>
       </div>
     </div>
   </section>
@@ -534,35 +684,31 @@
 
   <!-- DEMO (GUI) -->
   <div class="demo-section gui-only">
-    <div class="demo-wrap gui-demo">
-      <div class="demo-chrome">
-        <div class="dot dot-red"></div>
-        <div class="dot dot-yellow"></div>
-        <div class="dot dot-green"></div>
-        <span class="win-title">fungible</span>
-      </div>
-      <div class="gui-screen-wrap" id="gui-screens">
-        <img data-i="0" class="active" src="img/gui/dashboard.png"    alt="Dashboard" />
-        <img data-i="1"                src="img/gui/transactions.png" alt="Transactions" />
-        <img data-i="2"                src="img/gui/trends.png"       alt="Trends" />
-        <img data-i="3"                src="img/gui/networth.png"     alt="Net worth" />
-        <img data-i="4"                src="img/gui/tags.png"         alt="Tags" />
-        <img data-i="5"                src="img/gui/health.png"       alt="Financial health" />
-        <img data-i="6"                src="img/gui/rules.png"        alt="Rules" />
-        <img data-i="7"                src="img/gui/accounts.png"     alt="Accounts" />
-      </div>
-      <div class="gui-meta">
-        <span class="gui-label"><span class="gui-label-kw">//</span> <span id="gui-label-text">Dashboard</span></span>
-        <div class="gui-dots" id="gui-dots">
-          <button type="button" data-i="0" class="active" aria-label="Dashboard"></button>
-          <button type="button" data-i="1" aria-label="Transactions"></button>
-          <button type="button" data-i="2" aria-label="Trends"></button>
-          <button type="button" data-i="3" aria-label="Net worth"></button>
-          <button type="button" data-i="4" aria-label="Tags"></button>
-          <button type="button" data-i="5" aria-label="Health"></button>
-          <button type="button" data-i="6" aria-label="Rules"></button>
-          <button type="button" data-i="7" aria-label="Accounts"></button>
+    <div class="gui-demo">
+      <div class="gui-frame">
+        <div class="gui-counter">
+          <span class="gui-counter-cur" id="gui-counter-cur">01</span> / 08
         </div>
+        <div class="gui-screen-wrap" id="gui-screens">
+          <img data-i="0" class="active" src="img/gui/dashboard.png"    alt="Dashboard" />
+          <img data-i="1"                src="img/gui/transactions.png" alt="Transactions" />
+          <img data-i="2"                src="img/gui/trends.png"       alt="Trends" />
+          <img data-i="3"                src="img/gui/networth.png"     alt="Net worth" />
+          <img data-i="4"                src="img/gui/tags.png"         alt="Tags" />
+          <img data-i="5"                src="img/gui/health.png"       alt="Financial health" />
+          <img data-i="6"                src="img/gui/rules.png"        alt="Rules" />
+          <img data-i="7"                src="img/gui/accounts.png"     alt="Accounts" />
+        </div>
+      </div>
+      <div class="gui-thumbs" id="gui-thumbs">
+        <button type="button" class="gui-thumb active" data-i="0"><img src="img/gui/dashboard.png"    alt="" /><span>Dashboard</span></button>
+        <button type="button" class="gui-thumb"        data-i="1"><img src="img/gui/transactions.png" alt="" /><span>Transactions</span></button>
+        <button type="button" class="gui-thumb"        data-i="2"><img src="img/gui/trends.png"       alt="" /><span>Trends</span></button>
+        <button type="button" class="gui-thumb"        data-i="3"><img src="img/gui/networth.png"     alt="" /><span>Net worth</span></button>
+        <button type="button" class="gui-thumb"        data-i="4"><img src="img/gui/tags.png"         alt="" /><span>Tags</span></button>
+        <button type="button" class="gui-thumb"        data-i="5"><img src="img/gui/health.png"       alt="" /><span>Health</span></button>
+        <button type="button" class="gui-thumb"        data-i="6"><img src="img/gui/rules.png"        alt="" /><span>Rules</span></button>
+        <button type="button" class="gui-thumb"        data-i="7"><img src="img/gui/accounts.png"     alt="" /><span>Accounts</span></button>
       </div>
     </div>
   </div>
@@ -573,7 +719,8 @@
   <section class="section">
     <div class="section-label"><span class="sl-hash">//</span> what it does</div>
     <h2>Everything you need. Where it should be.</h2>
-    <p>The TUI stores everything in <code style="font-family:var(--font-mono);color:var(--yellow);font-size:0.9em">~/.fungible</code>. No account required.</p>
+    <p class="tui-only">The TUI stores everything in <code style="font-family:var(--font-mono);color:var(--yellow);font-size:0.9em">~/.fungible</code>. No account required.</p>
+    <p class="gui-only">Everything is stored on your computer. No account required.</p>
     <div class="features-grid">
       <div class="feature-card">
         <h3>Bank sync via Plaid</h3>
@@ -617,7 +764,7 @@
   <hr class="divider" />
 
   <!-- MCP -->
-  <section class="mcp-section">
+  <section class="mcp-section tui-only">
     <div>
       <div class="section-label"><span class="sl-hash">//</span> mcp server</div>
       <h2 style="font-family:var(--font-mono);font-size:clamp(1.3rem,3vw,1.8rem);font-weight:700;letter-spacing:-0.02em;margin-bottom:1rem">Ask Claude about your finances.</h2>
@@ -657,7 +804,7 @@
     </div>
   </section>
 
-  <hr class="divider" />
+  <hr class="divider tui-only" />
 
   <!-- CONTRIBUTE -->
   <section class="contribute-section">
@@ -703,11 +850,22 @@
   </script>
 
   <script>
+    // ── OS detection (drives which download CTA gets bubbled up) ───────
+    (function () {
+      const ua = navigator.userAgent || '';
+      const plat = (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '';
+      let os = 'mac';
+      if (/Win/i.test(plat) || /Windows/i.test(ua)) os = 'win';
+      else if (/Linux|X11/i.test(plat) || /Linux/i.test(ua)) os = 'linux';
+      else if (/Mac|iPhone|iPad/i.test(plat) || /Mac OS X|Macintosh/i.test(ua)) os = 'mac';
+      document.body.dataset.os = os;
+    })();
+
     // ── TUI/GUI mode toggle ─────────────────────────────────────────────
     (function () {
       const KEY = 'fungible-site-mode';
       const valid = (m) => m === 'tui' || m === 'gui';
-      const initial = valid(localStorage.getItem(KEY)) ? localStorage.getItem(KEY) : 'tui';
+      const initial = valid(localStorage.getItem(KEY)) ? localStorage.getItem(KEY) : 'gui';
       const setMode = (m) => {
         document.body.dataset.mode = m;
         localStorage.setItem(KEY, m);
@@ -723,35 +881,54 @@
       });
     })();
 
-    // ── GUI screenshot carousel ────────────────────────────────────────
+    // ── GUI screenshot gallery (slide transitions, thumbs, hover-pause) ─
     (function () {
-      const labels = ['Dashboard', 'Transactions', 'Trends', 'Net worth', 'Tags', 'Financial health', 'Rules', 'Accounts'];
       const imgs = document.querySelectorAll('#gui-screens img');
-      const dots = document.querySelectorAll('#gui-dots button');
-      const labelEl = document.getElementById('gui-label-text');
+      const thumbs = document.querySelectorAll('#gui-thumbs .gui-thumb');
+      const counterCur = document.getElementById('gui-counter-cur');
+      const wrap = document.getElementById('gui-screens');
+      const strip = document.getElementById('gui-thumbs');
+      const pad = (n) => String(n + 1).padStart(2, '0');
       let idx = 0;
       let timer = null;
+      let hover = false;
 
       const show = (i) => {
-        idx = (i + imgs.length) % imgs.length;
-        imgs.forEach((el) => el.classList.toggle('active', Number(el.dataset.i) === idx));
-        dots.forEach((el) => el.classList.toggle('active', Number(el.dataset.i) === idx));
-        labelEl.textContent = labels[idx];
+        const next = (i + imgs.length) % imgs.length;
+        const prev = idx;
+        idx = next;
+        imgs.forEach((el, k) => {
+          el.classList.remove('active', 'prev');
+          if (k === next) el.classList.add('active');
+          else if (k === prev) el.classList.add('prev');
+        });
+        thumbs.forEach((el, k) => el.classList.toggle('active', k === next));
+        if (counterCur) counterCur.textContent = pad(next);
+        // scroll active thumb into view inside the strip
+        const activeThumb = thumbs[next];
+        if (activeThumb && strip) {
+          const sl = strip.scrollLeft, sw = strip.clientWidth;
+          const tl = activeThumb.offsetLeft, tw = activeThumb.offsetWidth;
+          if (tl < sl + 8 || tl + tw > sl + sw - 8) {
+            strip.scrollTo({ left: tl - (sw - tw) / 2, behavior: 'smooth' });
+          }
+        }
       };
 
-      const start = () => {
-        stop();
-        timer = setInterval(() => show(idx + 1), 4500);
-      };
+      const start = () => { stop(); if (hover) return; timer = setInterval(() => show(idx + 1), 4000); };
       const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
 
-      dots.forEach((d) => d.addEventListener('click', () => { show(Number(d.dataset.i)); start(); }));
+      thumbs.forEach((t) => t.addEventListener('click', () => { show(Number(t.dataset.i)); start(); }));
 
-      // Only run the timer while the GUI section is actually visible.
-      const tick = () => {
-        if (document.body.dataset.mode === 'gui') start();
-        else stop();
-      };
+      const pause = () => { hover = true; stop(); };
+      const resume = () => { hover = false; if (document.body.dataset.mode === 'gui') start(); };
+      [wrap, strip].forEach((el) => {
+        if (!el) return;
+        el.addEventListener('mouseenter', pause);
+        el.addEventListener('mouseleave', resume);
+      });
+
+      const tick = () => { if (document.body.dataset.mode === 'gui') start(); else stop(); };
       tick();
       new MutationObserver(tick).observe(document.body, { attributes: true, attributeFilter: ['data-mode'] });
     })();
