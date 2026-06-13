@@ -441,13 +441,23 @@
     body[data-os="mac"]   .dl-alts a[data-for="mac"]   { display: none; }
     body[data-os="win"]   .dl-alts a[data-for="win"]   { display: none; }
     body[data-os="linux"] .dl-alts a[data-for="linux"] { display: none; }
+    .intel-link {
+      display: none;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: -0.45rem;
+      transition: color 0.15s;
+    }
+    .intel-link:hover { color: var(--text); text-decoration: none; }
+    body[data-os="mac"] .intel-link { display: block; }
     @media (max-width: 480px) {
       .dl-primary { width: 100%; justify-content: center; }
       .dl-alts { flex-wrap: wrap; justify-content: center; }
     }
 
     /* GUI demo gallery — frame, glow, slide transitions, thumbnail strip */
-    .demo-section.gui-only { max-width: 1040px; padding-top: 1.5rem; }
+    .demo-section.gui-only { max-width: 1260px; padding-top: 1.5rem; }
     .gui-demo {
       border: 0;
       border-radius: 12px;
@@ -456,33 +466,10 @@
     }
     .gui-frame {
       position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      background: var(--surface);
-      box-shadow:
-        0 0 0 1px var(--border),
-        0 30px 80px -30px rgba(189, 147, 249, 0.45),
-        0 20px 60px -25px rgba(139, 233, 253, 0.3),
-        0 12px 30px -10px rgba(0, 0, 0, 0.55);
-    }
-    .gui-frame::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: 11px;
-      padding: 1px;
-      background: linear-gradient(135deg, rgba(189,147,249,0.55), rgba(139,233,253,0.35) 50%, rgba(80,250,123,0.25));
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-              mask-composite: exclude;
-      pointer-events: none;
-      opacity: 0.6;
     }
     .gui-screen-wrap {
       position: relative;
       aspect-ratio: 2784 / 1884;
-      background: #14161d;
-      overflow: hidden;
     }
     .gui-screen-wrap img {
       width: 100%;
@@ -525,6 +512,8 @@
 
     .gui-thumbs {
       display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
       gap: 0.5rem;
       margin-top: 1rem;
       padding: 0.25rem 0.25rem 0.5rem;
@@ -638,9 +627,10 @@
           </svg>
           <span class="dl-text">
             <span class="dl-title">Download for macOS</span>
-            <span class="dl-sub">.dmg · Apple silicon &amp; Intel</span>
+            <span class="dl-sub" id="mac-dl-sub">.dmg · Apple silicon</span>
           </span>
         </a>
+        <a class="intel-link" id="mac-intel-link" href="https://github.com/tomfunk/fungible/releases/latest">Intel Mac →</a>
         <a class="dl-primary" data-for="win" href="https://github.com/tomfunk/fungible/releases/latest">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
             <path d="M3 5.5L10.8 4.4v7.1H3V5.5zM11.7 4.3L21 3v8.5h-9.3V4.3zM3 12.5h7.8v7.1L3 18.5v-6zM11.7 12.5H21V21l-9.3-1.3v-7.2z"/>
@@ -931,6 +921,39 @@
       const tick = () => { if (document.body.dataset.mode === 'gui') start(); else stop(); };
       tick();
       new MutationObserver(tick).observe(document.body, { attributes: true, attributeFilter: ['data-mode'] });
+    })();
+
+    // ── Resolve direct download URLs from GitHub Releases API ───────────
+    (async function () {
+      try {
+        const res = await fetch('https://api.github.com/repos/tomfunk/fungible/releases/latest');
+        if (!res.ok) return;
+        const rel = await res.json();
+        const assets = rel.assets || [];
+        const find = (pat) => assets.find((a) => pat.test(a.name))?.browser_download_url;
+
+        const macArm = find(/mac-arm64\.dmg$/);
+        const macX64 = find(/mac-x64\.dmg$/);
+        const win    = find(/win-x64\.exe$/);
+        const linux  = find(/linux-x86_64\.AppImage$/);
+
+        const set = (sel, url) => {
+          if (!url) return;
+          document.querySelectorAll(sel).forEach((el) => { el.href = url; });
+        };
+
+        set('.dl-primary[data-for="mac"]', macArm);
+        set('.dl-primary[data-for="win"]', win);
+        set('.dl-primary[data-for="linux"]', linux);
+        set('.dl-alts a[data-for="mac"]', macArm);
+        set('.dl-alts a[data-for="win"]', win);
+        set('.dl-alts a[data-for="linux"]', linux);
+
+        if (macX64) {
+          const intelLink = document.getElementById('mac-intel-link');
+          if (intelLink) intelLink.href = macX64;
+        }
+      } catch (_) {}
     })();
   </script>
 </body>
