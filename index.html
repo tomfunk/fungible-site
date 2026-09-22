@@ -17,15 +17,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:      #282a36;
-      --surface: #21222c;
-      --border:  #44475a;
-      --text:    #f8f8f2;
-      --muted:   #6272a4;
-      --purple:  #bd93f9;
-      --green:   #50fa7b;
-      --cyan:    #8be9fd;
-      --yellow:  #f1fa8c;
+      /* Palette — matches the GUI app's design tokens (gui/renderer/src/styles/theme.css) */
+      --bg:      #0d1117;
+      --surface: #151b23;
+      --border:  #2d3a4a;
+      --text:    #e6edf3;
+      --muted:   #8b98a8;
+      --accent:  #00d4aa;
+      --positive:   #3fb950;
+      --info:    #38bdf8;
+      --warning:  #d2a022;
       --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       --font-mono: "SF Mono", "Fira Code", "Fira Mono", Menlo, Monaco, Consolas, monospace;
     }
@@ -41,7 +42,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    a { color: var(--cyan); text-decoration: none; }
+    a { color: var(--info); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
     @keyframes blink {
@@ -69,7 +70,7 @@
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
-      background: rgba(40,42,54,0.93);
+      background: rgba(13,17,23,0.93);
       backdrop-filter: blur(8px);
       z-index: 10;
       font-family: var(--font-mono);
@@ -77,7 +78,7 @@
     }
     .nav-logo { color: var(--text); font-weight: 600; }
     .nav-logo .prompt { color: var(--muted); }
-    .nav-logo .name   { color: var(--purple); }
+    .nav-logo .name   { color: var(--accent); }
     .nav-links { display: flex; align-items: center; gap: 1.5rem; list-style: none; }
     .nav-links a { color: var(--muted); transition: color 0.15s; }
     .nav-links a:hover { color: var(--text); text-decoration: none; }
@@ -97,7 +98,7 @@
       white-space: nowrap;
     }
     .btn:hover { opacity: 0.8; text-decoration: none; }
-    .btn-primary { background: var(--purple); color: var(--surface); }
+    .btn-primary { background: var(--accent); color: #06281f; }
     .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
     .btn-outline:hover { border-color: var(--muted); }
 
@@ -114,7 +115,7 @@
       color: var(--muted);
       margin-bottom: 2rem;
     }
-    .hero-eyebrow .hl { color: var(--green); }
+    .hero-eyebrow .hl { color: var(--positive); }
     .hero h1 {
       font-family: var(--font-mono);
       font-size: clamp(1.8rem, 4.5vw, 3rem);
@@ -123,7 +124,7 @@
       letter-spacing: -0.02em;
       margin-bottom: 1.25rem;
     }
-    .hero h1 .hl-purple { color: var(--purple); }
+    .hero h1 .hl-purple { color: var(--accent); }
     .hero p {
       font-size: 1.05rem;
       color: var(--muted);
@@ -145,7 +146,7 @@
       margin: 3.5rem auto 0;
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
       text-align: left;
     }
@@ -165,8 +166,8 @@
     }
     .dot { width: 10px; height: 10px; border-radius: 50%; }
     .dot-red    { background: #ff5555; }
-    .dot-yellow { background: #f1fa8c; }
-    .dot-green  { background: #50fa7b; }
+    .dot-yellow { background: var(--warning); }
+    .dot-green  { background: var(--positive); }
     .install-lines {
       padding: 1.25rem 1.5rem;
       font-family: var(--font-mono);
@@ -177,7 +178,7 @@
     .prompt  { color: var(--muted); user-select: none; }
     .cmd     { color: var(--text); }
     .comment { color: var(--muted); }
-    .kw      { color: var(--purple); }
+    .kw      { color: var(--accent); }
 
     /* DEMO */
     .demo-section {
@@ -187,7 +188,7 @@
     }
     .demo-wrap {
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
     }
     .demo-chrome {
@@ -220,8 +221,7 @@
       margin: 0 auto;
       padding: 4rem 2rem;
     }
-    .section-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--muted); margin-bottom: 0.9rem; }
-    .section-label .sl-hash { color: var(--purple); }
+    .section-label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.9rem; }
     .section h2 {
       font-family: var(--font-mono);
       font-size: clamp(1.4rem, 3vw, 1.9rem);
@@ -236,7 +236,7 @@
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 1px;
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
       background: var(--border);
     }
@@ -245,10 +245,9 @@
       font-family: var(--font-mono);
       font-size: 0.875rem;
       font-weight: 600;
-      color: var(--cyan);
+      color: var(--info);
       margin-bottom: 0.5rem;
     }
-    .feature-card h3::before { content: '> '; color: var(--purple); }
     .feature-card p { font-size: 0.875rem; color: var(--muted); line-height: 1.65; }
 
     hr.divider { border: none; border-top: 1px solid var(--border); max-width: 900px; margin: 0 auto; }
@@ -267,7 +266,7 @@
     .mcp-terminal {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 6px;
       overflow: hidden;
       font-family: var(--font-mono);
       font-size: 0.8rem;
@@ -276,7 +275,7 @@
     .msg { display: flex; gap: 0.6rem; line-height: 1.55; }
     .msg-label { font-weight: 700; flex-shrink: 0; font-size: 0.75rem; padding-top: 0.05rem; }
     .msg-user   .msg-label { color: var(--muted);  }
-    .msg-claude .msg-label { color: var(--purple); }
+    .msg-claude .msg-label { color: var(--accent); }
     .msg-user   .msg-body  { color: var(--muted);  }
     .msg-claude .msg-body  { color: var(--text);   }
 
@@ -285,7 +284,7 @@
     .contribute-inner {
       background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: 6px;
       padding: 2.5rem;
       display: grid;
       grid-template-columns: 1fr auto;
@@ -298,7 +297,7 @@
 
     /* WAITLIST */
     .waitlist-section { max-width: 900px; margin: 0 auto; padding: 0 2rem 5rem; }
-    .waitlist-inner { border: 1px solid var(--border); border-radius: 8px; padding: 2.5rem; text-align: center; }
+    .waitlist-inner { border: 1px solid var(--border); border-radius: 6px; padding: 2.5rem; text-align: center; }
     .waitlist-inner h2 { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; margin-bottom: 0.4rem; }
     .waitlist-inner p  { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; font-family: var(--font-mono); }
     .waitlist-form { display: flex; gap: 0.5rem; max-width: 400px; margin: 0 auto; }
@@ -315,7 +314,7 @@
       transition: border-color 0.15s;
     }
     .waitlist-form input::placeholder { color: var(--muted); }
-    .waitlist-form input:focus { border-color: var(--purple); }
+    .waitlist-form input:focus { border-color: var(--accent); }
     @media (max-width: 480px) { .waitlist-form { flex-direction: column; } }
 
     /* FOOTER */
@@ -362,7 +361,7 @@
     }
     .mode-toggle button:hover { color: var(--text); }
     .mode-toggle button.active {
-      background: var(--purple);
+      background: var(--accent);
       color: var(--surface);
     }
 
@@ -371,7 +370,7 @@
     body[data-mode="gui"] .tui-only { display: none !important; }
 
     /* GUI hero word + cursor swap */
-    .hero h1 .hl-gui { color: var(--cyan); }
+    .hero h1 .hl-gui { color: var(--info); }
     body[data-mode="gui"] .hero h1 .cursor { display: none; }
 
     /* In GUI mode, the download CTA is the primary; demote the github button */
@@ -395,22 +394,16 @@
       align-items: center;
       gap: 0.85rem;
       padding: 0.95rem 1.4rem;
-      background: var(--purple);
-      color: var(--surface);
-      border-radius: 8px;
+      background: var(--accent);
+      color: #06281f;
+      border-radius: 6px;
       font-family: var(--font-mono);
       font-weight: 600;
-      box-shadow:
-        0 8px 24px -10px rgba(189, 147, 249, 0.55),
-        0 2px 6px -2px rgba(0, 0, 0, 0.4);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: filter 0.15s ease;
     }
     .dl-primary:hover {
       text-decoration: none;
-      transform: translateY(-1px);
-      box-shadow:
-        0 12px 30px -10px rgba(189, 147, 249, 0.7),
-        0 3px 8px -2px rgba(0, 0, 0, 0.5);
+      filter: brightness(1.1);
     }
     .dl-primary svg { flex-shrink: 0; }
     .dl-primary .dl-text { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.15; }
@@ -547,9 +540,9 @@
       transform: translateY(-2px);
     }
     .gui-thumb.active {
-      border-color: var(--purple);
+      border-color: var(--accent);
       color: var(--text);
-      background: rgba(189, 147, 249, 0.08);
+      background: rgba(0, 212, 170, 0.08);
     }
     .gui-thumb img {
       width: 100%;
@@ -707,26 +700,26 @@
 
   <!-- FEATURES -->
   <section class="section">
-    <div class="section-label"><span class="sl-hash">//</span> what it does</div>
+    <div class="section-label">what it does</div>
     <h2>Everything you need. Where it should be.</h2>
-    <p class="tui-only">The TUI stores everything in <code style="font-family:var(--font-mono);color:var(--yellow);font-size:0.9em">~/.fungible</code>. No account required.</p>
+    <p class="tui-only">The TUI stores everything in <code style="font-family:var(--font-mono);color:var(--warning);font-size:0.9em">~/.fungible</code>. No account required.</p>
     <p class="gui-only">Everything is stored on your computer. No account required.</p>
     <div class="features-grid">
       <div class="feature-card">
         <h3>Bank sync via Plaid</h3>
-        <p>Connect checking, savings, credit, and investment accounts via <a href="https://plaid.com" target="_blank" rel="noopener" style="color:var(--cyan)">Plaid</a>. Transactions pull automatically with a 15-minute debounce and a force-sync option.</p>
+        <p>Connect checking, savings, credit, and investment accounts via <a href="https://plaid.com" target="_blank" rel="noopener" style="color:var(--info)">Plaid</a>. Transactions pull automatically with a 15-minute debounce and a force-sync option.</p>
       </div>
       <div class="feature-card">
         <h3>CSV import</h3>
-        <p>Import statement exports from any bank. Flexible column mapping, duplicate detection against <a href="https://plaid.com" target="_blank" rel="noopener" style="color:var(--cyan)">Plaid</a> imports, and soft-delete for cleanup.</p>
+        <p>Import statement exports from any bank. Flexible column mapping, duplicate detection against <a href="https://plaid.com" target="_blank" rel="noopener" style="color:var(--info)">Plaid</a> imports, and soft-delete for cleanup.</p>
       </div>
       <div class="feature-card">
         <h3>Category rules</h3>
-        <p>Substring and <span style="color:var(--cyan)">regex</span> rules with optional amount filters auto-categorize transactions on sync. Name rules let you rename how payees display.</p>
+        <p>Substring and <span style="color:var(--info)">regex</span> rules with optional amount filters auto-categorize transactions on sync. Name rules let you rename how payees display.</p>
       </div>
       <div class="feature-card">
         <h3>Spending trends</h3>
-        <p>Bar charts for expenses, income, or any category, aggregated by week, month, quarter, or year. <span style="color:var(--purple)">Delta mode</span> shows deviation from your rolling averages.</p>
+        <p>Charts for expenses and income aggregated by week, month, quarter, or year. <span style="color:var(--accent)">Scorecard</span> flags categories running over or under their 12-month baseline.</p>
       </div>
       <div class="feature-card">
         <h3>Net worth tracking</h3>
@@ -734,7 +727,7 @@
       </div>
       <div class="feature-card">
         <h3>FIRE &amp; financial health</h3>
-        <p>Cash and liquid runway, <span style="color:var(--cyan)">FIRE number</span> with progress bar, <span style="color:var(--cyan)">Coast FIRE</span>, and years to retirement. Adjustable assumptions with live recalculation.</p>
+        <p>Cash and liquid runway, <span style="color:var(--info)">FIRE number</span> with progress bar, <span style="color:var(--info)">Coast FIRE</span>, and years to retirement. Adjustable assumptions with live recalculation.</p>
       </div>
       <div class="feature-card">
         <h3>Tags</h3>
@@ -746,7 +739,7 @@
       </div>
       <div class="feature-card">
         <h3>Daily backups</h3>
-        <p>Your database is backed up to <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--yellow)">~/.fungible/backups/</code> on startup once per day. Keeps the last 7 by default.</p>
+        <p>Your database is backed up to <code style="font-family:var(--font-mono);font-size:0.85em;color:var(--warning)">~/.fungible/backups/</code> on startup once per day. Keeps the last 7 by default.</p>
       </div>
     </div>
   </section>
@@ -756,14 +749,14 @@
   <!-- MCP -->
   <section class="mcp-section tui-only">
     <div>
-      <div class="section-label"><span class="sl-hash">//</span> mcp server</div>
+      <div class="section-label">mcp server</div>
       <h2 style="font-family:var(--font-mono);font-size:clamp(1.3rem,3vw,1.8rem);font-weight:700;letter-spacing:-0.02em;margin-bottom:1rem">Ask Claude about your finances.</h2>
       <p style="color:var(--muted);font-size:0.95rem;line-height:1.75;margin-bottom:1.25rem">
         Fungible ships with a built-in <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener">MCP server</a>. Point Claude Desktop at it and you can ask natural-language questions about your spending, run summaries, add rules, and more — directly from Claude.
       </p>
       <p style="color:var(--muted);font-size:0.85rem;line-height:1.75;font-family:var(--font-mono)">
-        <span style="color:var(--purple)">stdio</span> mode always works, even when the TUI is closed.<br/>
-        <span style="color:var(--cyan)">http</span> mode updates the TUI instantly while it's running.
+        <span style="color:var(--accent)">stdio</span> mode always works, even when the TUI is closed.<br/>
+        <span style="color:var(--info)">http</span> mode updates the TUI instantly while it's running.
       </p>
     </div>
     <div class="mcp-terminal">
@@ -780,7 +773,7 @@
         </div>
         <div class="msg msg-claude">
           <span class="msg-label">claude&nbsp;</span>
-          <span class="msg-body">Done. Rule added: <span style="color:var(--yellow)">"Venmo"</span> → <span style="color:var(--green)">Babysitting</span>, min <span style="color:var(--cyan)">$100.00</span>. Matched 3 existing transactions — all recategorized.</span>
+          <span class="msg-body">Done. Rule added: <span style="color:var(--warning)">"Venmo"</span> → <span style="color:var(--positive)">Babysitting</span>, min <span style="color:var(--info)">$100.00</span>. Matched 3 existing transactions — all recategorized.</span>
         </div>
         <div class="msg msg-user">
           <span class="msg-label">you&nbsp;&nbsp;&nbsp;&nbsp;</span>
